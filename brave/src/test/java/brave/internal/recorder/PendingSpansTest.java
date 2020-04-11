@@ -16,6 +16,7 @@ package brave.internal.recorder;
 import brave.GarbageCollectors;
 import brave.handler.FinishedSpanHandler;
 import brave.handler.MutableSpan;
+import brave.handler.SpanListener;
 import brave.internal.InternalPropagation;
 import brave.propagation.SamplingFlags;
 import brave.propagation.TraceContext;
@@ -67,12 +68,12 @@ public class PendingSpansTest {
         spans.add(b.build());
         return true;
       }
-    }, false);
+    });
   }
 
-  void init(FinishedSpanHandler zipkinFinishedSpanHandler, boolean trackOrphans) {
-    pendingSpans = new PendingSpans(() -> clock.incrementAndGet() * 1000L,
-      zipkinFinishedSpanHandler, trackOrphans, new AtomicBoolean());
+  void init(FinishedSpanHandler zipkinFinishedSpanHandler) {
+    pendingSpans = new PendingSpans(() -> clock.incrementAndGet() * 1000L, SpanListener.NOOP,
+      zipkinFinishedSpanHandler, new AtomicBoolean());
   }
 
   @Test
@@ -195,7 +196,7 @@ public class PendingSpansTest {
       @Override public boolean handle(TraceContext context, MutableSpan span) {
         throw new RuntimeException();
       }
-    }, false);
+    });
 
     TraceContext context = this.context.toBuilder().build();
     pendingSpans.getOrCreate(null, context, false);
@@ -223,7 +224,7 @@ public class PendingSpansTest {
         handledContext[0] = context;
         return true;
       }
-    }, false);
+    });
 
     TraceContext context = this.context.toBuilder().build();
     pendingSpans.getOrCreate(null, context, false).state().tag("foo", "bar");
@@ -248,7 +249,7 @@ public class PendingSpansTest {
         handledContext[0] = context;
         return true;
       }
-    }, false);
+    });
 
     TraceContext context = context1.toBuilder().build();
     pendingSpans.getOrCreate(null, context, false).state().tag("foo", "bar");
