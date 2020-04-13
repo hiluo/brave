@@ -72,7 +72,7 @@ public final class MutableSpan implements Cloneable {
   ArrayList<String> tags;
   /** Also use pair indexing for annotations, but type object to store (startTimestamp, value). */
   ArrayList<Object> annotations;
-  Throwable caller, error;
+  Throwable error;
 
   public MutableSpan() {
     // this cheats because it will not need to grow unless there are more than 5 tags
